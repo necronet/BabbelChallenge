@@ -22,6 +22,8 @@ The current provided solution is restricted to a developer time of 4hrs which in
 - 15m on documentation
 - 15m on getting assets and animation right. 
 
+## App view:
 
+![Babbel Challenge game](app.png)
 
 
