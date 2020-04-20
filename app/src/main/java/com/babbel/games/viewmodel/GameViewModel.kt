@@ -15,13 +15,18 @@ import okio.Okio
 class GameViewModel(val app: Application) : AndroidViewModel(app) {
 
     lateinit var engine: WordGameEngine
-    lateinit var currentPlay : WordPlay
     var wins : Int = 0
     var lost : Int = 0
 
-    val wordPlay: LiveData<WordPlay> = liveData {
+    private val wordPlay: MutableLiveData<WordPlay> by lazy {
         val wordPlay = loadGame()
-        emit(wordPlay)
+        MutableLiveData<WordPlay>().apply {
+            value = wordPlay
+        }
+    }
+
+    fun getWordPlay(): LiveData<WordPlay> {
+        return wordPlay
     }
 
     private val result: MutableLiveData<Pair<Int, Int>> by lazy {
@@ -35,26 +40,38 @@ class GameViewModel(val app: Application) : AndroidViewModel(app) {
         return result
     }
 
-    fun loadGame():WordPlay {
+    fun loadGame(): WordPlay {
         val stream = Okio.buffer(Okio.source(app.resources.openRawResource(R.raw.words_v2)))
         engine = WordGameEngine(stream)
-        currentPlay = engine.start().next()
-        return currentPlay
+        return engine.start().next()
     }
 
-    fun answer(isCorrect: Boolean) : PlayMessage {
-        val playMessage = currentPlay.play(isCorrect)
-        if (playMessage is PlayMessage.PlayMessageSuccess) {
-            Log.d("DEBUG","Success")
-            wins += 1
-            result.postValue(Pair(wins, lost))
+    fun answer(isCorrect: Boolean) : PlayMessage? {
 
+        val playMessage = wordPlay.value?.play(isCorrect)
+        if (playMessage is PlayMessage.PlayMessageSuccess) {
+            win()
         }
         if (playMessage is PlayMessage.PlayMessageFailure) {
-            Log.d("DEBUG","Failure")
-            lost += 1
-            result.postValue(Pair(wins, lost))
+            lose()
         }
+
+        wordPlay.postValue(engine.next())
         return playMessage
     }
+
+    fun win() {
+        wins += 1
+        updateResult()
+    }
+
+    fun lose() {
+        lost += 1
+        updateResult()
+    }
+
+    fun updateResult() {
+        result.postValue(Pair(wins, lost))
+    }
+
 }

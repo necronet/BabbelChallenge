@@ -5,19 +5,18 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.util.Log
 import android.view.ViewTreeObserver
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.babbel.games.viewmodel.GameViewModel
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.word.*
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
 
+    private val animatorSet = AnimatorSet()
     private lateinit var mediaPlayer: MediaPlayer
     private val viewModel: GameViewModel by viewModels()
 
@@ -32,7 +31,7 @@ class MainActivity : AppCompatActivity() {
             toolbar_title.text = getString(R.string.score_text, it.first, it.second)
         })
 
-        viewModel.wordPlay.observe(this, Observer {
+        viewModel.getWordPlay().observe(this, Observer {
             text_word.text = it.wordGame.text_spa
             text_challenge.text = when (it.chooseTranslation) {
                 true -> it.wordGame.text_eng
@@ -42,15 +41,19 @@ class MainActivity : AppCompatActivity() {
         })
 
         yes.setOnClickListener { view ->
-            //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-            //    .setAction("Action", null).show()
-            viewModel.answer(true)
+            answer(true)
         }
 
         no.setOnClickListener { view ->
-
-            viewModel.answer(false)
+            answer(false)
         }
+    }
+
+    fun answer(isCorrect : Boolean) {
+        animatorSet.removeAllListeners()
+        animatorSet.end()
+        animatorSet.cancel()
+        viewModel.answer(isCorrect)
     }
 
     fun startAnimation() {
@@ -74,14 +77,12 @@ class MainActivity : AppCompatActivity() {
                         duration = 5000
                     }
 
-
-                val animatorSet = AnimatorSet()
-
                 animatorSet.playSequentially(alphaAnimatorDisplay, translationAnimation)
                 animatorSet.addListener(object : Animator.AnimatorListener {
                     override fun onAnimationRepeat(animation: Animator?) {}
 
                     override fun onAnimationEnd(animation: Animator?) {
+                        viewModel.lose()
                         text_word.alpha = 0f
                         text_word.y = initialY
                         text_word.x = Random.nextInt(0, limitToX).toFloat()
