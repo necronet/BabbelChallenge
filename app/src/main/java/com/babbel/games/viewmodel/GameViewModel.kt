@@ -56,7 +56,6 @@ class GameViewModel(val app: Application) : AndroidViewModel(app) {
             lose()
         }
 
-        wordPlay.postValue(engine.next())
         return playMessage
     }
 
@@ -71,6 +70,7 @@ class GameViewModel(val app: Application) : AndroidViewModel(app) {
     }
 
     fun updateResult() {
+        wordPlay.postValue(engine.next())
         result.postValue(Pair(wins, lost))
     }
 
