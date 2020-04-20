@@ -11,7 +11,6 @@ class WordGame private constructor(val data: List<WordGameData>?) {
         return Pair(data?.random(), data?.random()?.text_spa)
     }
 
-    //TODO : this should actually be done asnychronously with couroutines
     data class Builder(var source: BufferedSource) {
         fun build(): WordGame {
             val moshi: Moshi = Moshi.Builder().build()

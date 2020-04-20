@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">BabbelGameChallenge</string>
     <string name="title_activity_main">MainActivity</string>
-    <string name="score_text">Wins: 0, Loss: 0</string>
+    <string name="score_text">Wins: %1$d, Loss: %2$d</string>
 </resources>

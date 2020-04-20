@@ -15,8 +15,9 @@ import kotlin.random.Random
 class WordGameEngine(val stream: BufferedSource) {
     lateinit var wordGame: WordGame
 
-    fun start() {
+    fun start() : WordGameEngine {
         wordGame = WordGame.Builder(stream).build()
+        return this
     }
 
     fun next(): WordPlay {
